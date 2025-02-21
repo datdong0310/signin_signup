@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.signin_signup.signin_signup_demo.Services.UserDetailsImpl;
-import com.signin_signup.signin_signup_demo.Services.UserDetailsService;
+import com.signin_signup.signin_signup_demo.Services.UserDetailsImplService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +26,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private static UserDetailsService loaduserService;
+    private static UserDetailsImplService loaduserService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 

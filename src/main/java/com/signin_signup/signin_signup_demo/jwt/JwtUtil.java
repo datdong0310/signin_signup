@@ -58,7 +58,7 @@ public class JwtUtil {
         } catch(UnsupportedJwtException e){
             logger.error("Unsupported Token", e.getMessage());
             return false;
-        };
+        }
         return false;
     }
 

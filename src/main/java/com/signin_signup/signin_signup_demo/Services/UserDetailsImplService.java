@@ -1,6 +1,6 @@
 package com.signin_signup.signin_signup_demo.Services;
 
-import java.lang.classfile.instruction.ReturnInstruction;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +11,7 @@ import com.signin_signup.signin_signup_demo.Repository.UserRepository;
 import com.signin_signup.signin_signup_demo.Model.*;
 
 @Service
-public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class UserDetailsImplService implements org.springframework.security.core.userdetails.UserDetailsService {
     @Autowired
     private UserRepository UserRepo;
     @Override

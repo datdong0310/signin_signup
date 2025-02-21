@@ -1,5 +1,29 @@
 package com.signin_signup.signin_signup_demo.payload.request;
+import jakarta.validation.constraints.NotBlank;
 
-public class signrequest {
+public class signinRequest {
+    @NotBlank
+    private String username;
+
+    @NotBlank
+    private String password;
+
+    public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
 
 }

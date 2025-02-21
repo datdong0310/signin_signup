@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.signin_signup.signin_signup_demo.Repository.RoleRepository;
 import com.signin_signup.signin_signup_demo.Repository.UserRepository;
+import com.signin_signup.signin_signup_demo.Services.EmailServices;
 import com.signin_signup.signin_signup_demo.Services.UserDetailsImpl;
 import com.signin_signup.signin_signup_demo.jwt.JwtUtil;
 import com.signin_signup.signin_signup_demo.payload.request.signinRequest;
@@ -56,6 +57,9 @@ public class AuthController {
       @Autowired
       JwtUtil jwtUtil;
 
+      @Autowired
+      EmailServices sendMail;
+
       @PostMapping("/signin")
       public ResponseEntity<?> authenticateUser(@Valid @RequestBody signinRequest SignInRequest) {
           Authentication authentication = authenticationManager.authenticate(
@@ -64,9 +68,8 @@ public class AuthController {
           SecurityContextHolder.getContext().setAuthentication(authentication);
           String token = jwtUtil.JWT_GenerateToke(authentication);
           UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-          List<String> authorities = userDetails.getAuthorities().stream().
-          map(item -> item.getAuthority()).collect(Collectors.toList());
-          return ResponseEntity.ok(new jwtRespone(token, userDetails.getId(), userDetails.getUsername(), userDetails.getPassword(),authorities));
+          sendMail.sendToken(token, userDetails.getEmail());
+          return ResponseEntity.ok("Check your email for authentication token");
       };
 
       @PostMapping("/signup")
