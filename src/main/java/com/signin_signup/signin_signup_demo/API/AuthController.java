@@ -23,6 +23,7 @@ import com.signin_signup.signin_signup_demo.Repository.RoleRepository;
 import com.signin_signup.signin_signup_demo.Repository.UserRepository;
 import com.signin_signup.signin_signup_demo.Services.EmailServices;
 import com.signin_signup.signin_signup_demo.Services.UserDetailsImpl;
+import com.signin_signup.signin_signup_demo.Services.UserDetailsImplService;
 import com.signin_signup.signin_signup_demo.jwt.JwtUtil;
 import com.signin_signup.signin_signup_demo.payload.request.signinRequest;
 import com.signin_signup.signin_signup_demo.payload.request.signupRequest;
@@ -58,10 +59,19 @@ public class AuthController {
       JwtUtil jwtUtil;
 
       @Autowired
+      UserDetailsImplService userDetailsImplService;
+
+      @Autowired
       EmailServices sendMail;
+
+
 
       @PostMapping("/signin")
       public ResponseEntity<?> authenticateUser(@Valid @RequestBody signinRequest SignInRequest) {
+        User user = userRepo.findbyUsername(SignInRequest.getUsername()).orElse(null);
+        if (userDetailsImplService.checkEmailverification(user)=="Not verified"){
+          return ResponseEntity.badRequest().body("Not verified");
+        };
           Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(SignInRequest.getUsername(), SignInRequest.getPassword())
           );
@@ -122,7 +132,9 @@ public class AuthController {
           }
           user.setRoles(ROLES);
           userRepo.save(user);
-          return ResponseEntity.ok(new messageRespone("Sign up success"));
+          userDetailsImplService.setEmailverification(user);
+          
+          return ResponseEntity.ok(new messageRespone("Sign up success, please verified your email to continue"));
           }
       
       
