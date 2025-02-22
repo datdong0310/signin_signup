@@ -15,7 +15,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 
@@ -25,6 +27,7 @@ import com.signin_signup.signin_signup_demo.Services.EmailServices;
 import com.signin_signup.signin_signup_demo.Services.UserDetailsImpl;
 import com.signin_signup.signin_signup_demo.Services.UserDetailsImplService;
 import com.signin_signup.signin_signup_demo.jwt.JwtUtil;
+import com.signin_signup.signin_signup_demo.payload.request.resetpsRequest;
 import com.signin_signup.signin_signup_demo.payload.request.signinRequest;
 import com.signin_signup.signin_signup_demo.payload.request.signupRequest;
 import com.signin_signup.signin_signup_demo.payload.respone.jwtRespone;
@@ -32,6 +35,7 @@ import com.signin_signup.signin_signup_demo.payload.respone.messageRespone;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.signin_signup.signin_signup_demo.payload.respone.jwtRespone;
@@ -69,8 +73,8 @@ public class AuthController {
       @PostMapping("/signin")
       public ResponseEntity<?> authenticateUser(@Valid @RequestBody signinRequest SignInRequest) {
         User user = userRepo.findbyUsername(SignInRequest.getUsername()).orElse(null);
-        if (userDetailsImplService.checkEmailverification(user)=="Not verified"){
-          return ResponseEntity.badRequest().body("Not verified");
+        if (userDetailsImplService.checkEnable(user)==false){
+          return ResponseEntity.badRequest().body(new messageRespone("Not verified"));
         };
           Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(SignInRequest.getUsername(), SignInRequest.getPassword())
@@ -136,8 +140,30 @@ public class AuthController {
           
           return ResponseEntity.ok(new messageRespone("Sign up success, please verified your email to continue"));
           }
-      
-      
-
-      
-};
+          
+        @GetMapping("/verify")
+        public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
+        return ResponseEntity.ok(userDetailsImplService.checkEmailverification(token));
+    };          
+          @PostMapping("/forgot_password")
+          public ResponseEntity<?> EmailresetPassword(@Valid @RequestBody resetpsRequest request) {
+              User user= userRepo.findByEmail(request.getEmail()).orElse(null);
+              if(user==null){
+                return ResponseEntity.badRequest().body(new messageRespone("Can not find email"));
+              };
+             
+              userDetailsImplService.setEmailverification(user);
+              return ResponseEntity.ok(new messageRespone("Please check your email to confirm reset password"));
+          }
+     
+        @GetMapping("/reset_pw")
+        public ResponseEntity<?> verifypassword(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+          User user = userRepo.findByemailValidationToken(token).orElse(null);
+        if(user!=null && userDetailsImplService.checkPasswordReset(token)=="valid"){
+                      user.setPassword(newPassword);
+                      userRepo.save(user);
+                      return ResponseEntity.ok("reset successfully");
+        }
+        return ResponseEntity.badRequest().body(new messageRespone("Can not verify"));
+       
+};};
